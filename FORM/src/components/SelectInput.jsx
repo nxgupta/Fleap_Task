@@ -1,24 +1,27 @@
 import { MenuItem, TextField } from "@mui/material";
-const SelectInput = ({ name,label,options,handleChange,formData,handleBlur}) => {
+import Loader from "../utils/loader";
+const SelectInput = ({ name, label, options, handleChange, formData, handleBlur, isLoading }) => {
     return (
-        <TextField
-            select
-            fullWidth
-            label={label}
-            size='small'
-            name={name}
-            value={formData[name].value}
-            onChange={handleChange}
-            error={formData[name].error}
-            onBlur={handleBlur}
-            helperText={formData[name].error && formData[name].errorMessage}
+        <>
+            <TextField
+                select
+                fullWidth
+                label={label}
+                size='small'
+                name={name}
+                value={formData[name].value}
+                onChange={handleChange}
+                error={formData[name].error}
+                onBlur={handleBlur}
+                helperText={formData[name].error && formData[name].errorMessage}
             >
-                {options.map((option) => (
-                <MenuItem key={option.key} value={option.value}>
-                    {option.key}
-                </MenuItem>
-            ))}
+                {isLoading ?(<Loader/>):(options.map((option) => (
+                    <MenuItem key={option.id} value={option.name}>
+                        {option.name}
+                    </MenuItem>
+                )))}
             </TextField>
+        </>
     )
 }
 

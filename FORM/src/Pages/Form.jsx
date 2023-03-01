@@ -1,15 +1,32 @@
 import { Button, Grid, Paper, Box } from '@mui/material'
-import { useEffect,useState } from 'react'
+import { useEffect, useState } from 'react'
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import SelectInput from '../components/SelectInput'
 import TextInput from '../components/TextInput'
-const Form = ({ setDisplayData }) => {
+import Loader from '../utils/loader';
+const Form = ({ setDisplayData, isLoading, setIsLoading }) => {
+    let [countryData, setCountryData] = useState([])
+    useEffect(() => {
+        setIsLoading(true)
+        let fetch=async ()=>{
+            try{
+                let res=await axios.get('https://laravel-world.com/api/countries')
+                setTimeout(()=>{setIsLoading(false)},1000)
+                setCountryData(res.data.data)
+            }
+            catch(error){
+                console.log(error.message)
+            }
+        }
+        fetch();
+    },[])
 
     //to Navigate to display page
     const navigate = useNavigate();
 
     //initial form value
-    let initialFormValues={
+    let initialFormValues = {
         name: { value: '', error: false, errorMessage: 'You must enter your Name' },
         email: { value: '', error: false, errorMessage: 'You must enter your Email' },
         phone: { value: '', error: false, errorMessage: 'You must enter your 10 digit Phone number' },
@@ -20,8 +37,10 @@ const Form = ({ setDisplayData }) => {
     function handleSubmit(event) {
         event.preventDefault();
         if (validator()) {
-            console.log(formData)
+            setIsLoading(true)
+            setDisplayData(prevDisplayData => [...prevDisplayData, formData])
             setFormData(initialFormValues)
+            setTimeout(()=>{setIsLoading(false)},1000)
             navigate('/display')
         }
     }
@@ -67,7 +86,6 @@ const Form = ({ setDisplayData }) => {
                     setFormData({ ...formData, [name]: { ...formData[name], error: false } })
                 }
             }
-
                 break;
             case 'phone': {
                 if (value === '') {
@@ -80,7 +98,6 @@ const Form = ({ setDisplayData }) => {
                     setFormData({ ...formData, [name]: { ...formData[name], error: false } })
                 }
             }
-
                 break;
             case 'country': {
                 if (value === '') {
@@ -91,9 +108,7 @@ const Form = ({ setDisplayData }) => {
                 }
             }
                 break;
-
             default:
-
                 break;
         }
     }
@@ -103,7 +118,6 @@ const Form = ({ setDisplayData }) => {
         const { name, value } = event.target
         setFormData({ ...formData, [name]: { ...formData[name], value } })
     }
-    //console.log(formData)
     return (
         <form onSubmit={handleSubmit}>
             <Paper component={Box} p={2}>
@@ -123,7 +137,7 @@ const Form = ({ setDisplayData }) => {
                         <TextInput label="Phone number" name='phone' formData={formData} handleBlur={handleBlur} type='tel' handleChange={handleChange} />
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                        <SelectInput label="Country" name='country' formData={formData} handleBlur={handleBlur} handleChange={handleChange} options={[{ key: 'Male', value: 'Male' }, { key: 'Female', value: 'Female' }, { key: 'Other', value: 'Other' }]} />
+                        <SelectInput isLoading={isLoading} label="Country" name='country' formData={formData} handleBlur={handleBlur} handleChange={handleChange} options={countryData} />
                     </Grid>
                 </Grid>
                 <Grid container spacing={1} justifyContent='flex-end' >
